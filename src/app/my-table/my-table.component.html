@@ -1,0 +1,53 @@
+<mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<!-- kolumna checkboksów -->
+  <ng-container matColumnDef="select">
+    <mat-header-cell *matHeaderCellDef>
+      <mat-checkbox (click)="$event.stopPropagation()"
+                    (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()">
+      </mat-checkbox>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <mat-checkbox (click)="$event.stopPropagation()"
+                    (change)="toggleRow(row)" 
+                    [checked]="selection.isSelected(row.item)"></mat-checkbox>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container *ngFor="let column of columns; let i = index" matColumnDef="{{ column }}">
+    <mat-header-cell *matHeaderCellDef>{{ column }}
+  
+      <button class="grid-view-header-menu"
+        mat-icon-button [matMenuTriggerFor]="menu" >
+        <mat-icon>menu</mat-icon>
+      </button>
+  
+      <mat-menu #menu>
+        <button mat-menu-item (click)="this.addGroupColumn($event, column)">Group By This Field</button>
+        <button mat-menu-item (click)="this.removeGroupColumn($event, column)">Ungroup</button>
+      </mat-menu>
+  
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row">{{ row.item[column] }}</mat-cell>
+  </ng-container>
+  
+  <mat-header-row mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayColumns;"></mat-row>
+
+  <ng-container matColumnDef="groupHeader">
+		<mat-cell colspan="999" *matCellDef="let group">
+      <mat-checkbox (click)="$event.stopPropagation()"
+                    (change)="toggleGroup($event, group)"
+                    [checked]="everyChildrenSelected(group)"
+                    [indeterminate]="someChildrenSelected(group)"
+      ></mat-checkbox>
+      <mat-icon *ngIf="group.isExpanded">expand_less</mat-icon>
+      <mat-icon *ngIf="!group.isExpanded">expand_more</mat-icon>
+			<strong>{{group.displayContent}}</strong>
+    </mat-cell>
+  </ng-container>
+
+  <mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup" (click)="groupHeaderClicked(row)"></mat-row>
+
+</mat-table>
